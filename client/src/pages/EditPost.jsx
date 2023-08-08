@@ -7,7 +7,7 @@ const EditPost = () => {
   const [title, setTitle] = useState("")
   const [summary, setSummary] = useState("")
   const [content, setContent] = useState("")
-  const [redirect, setRedirect] = useState('')
+  const [redirect, setRedirect] = useState(false)
 
   const [file, setFile] = useState("")
 
@@ -22,13 +22,31 @@ const EditPost = () => {
     })
   }, [])
   
-  const updatePost = (e) => {
+  const updatePost = async (e) => {
     e.preventDefault()
 
+    const data = new FormData();
+    data.set('title', title)
+    data.set('summary', summary)
+    data.set('content', content)
+    data.set('id', id)
+
+    if(file?.[0]){
+      data.set('file', file?.[0])
+    }
+
+    const response = await fetch("http://localhost:4000/post", {
+      method: 'PUT',
+      body: data,
+      credentials: 'include'
+    })
+    if(response.ok){
+      setRedirect(true)
+    }
   }
 
   if(redirect){
-    return <Navigate to={'/'}/>
+    return <Navigate to={'/post/'+id}/>
   }
 
   return ( <>

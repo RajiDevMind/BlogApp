@@ -66,11 +66,15 @@ app.post('/login', async (req, res) => {
 
 app.get('/profile', (req, res) => {
     const {token} = req.cookies;
-    console.log(token)
-      jwt.verify(token, secret, {}, (err, info) => {
-        if(err) throw err;
-        res.json(info)
-    })
+    try{
+        jwt.verify(token, secret, {}, (err, info) => {
+          if(err) throw err;
+          res.json(info)
+      })
+    }catch(error){
+        res.json("Kindly Login!!!")
+        console.log("Token is undefined since you have not Login!!!")
+    }
 })
 
 app.post('/logout', (req, res) => {
@@ -112,6 +116,38 @@ app.post('/post', uploadMiddleware.single('file'), async (req, res) => {
     )}   
 })
 
+app.put('/post', uploadMiddleware.single('file'), async (req, res) => {
+
+    if (req.file){
+        let newPath;
+        // renaming file before sending to DB
+        const {originalname,path} = req.file;
+        const parts = originalname.split('.');
+        const ext = parts[parts.length - 1];
+        newPath = path+'.'+ext;
+        fs.renameSync(path, newPath);
+    }
+        const {token} = req.cookies;
+        jwt.verify(token, secret, {}, async (err, info) => {
+
+            if(err) throw err;
+            const {id, title, summary, content} = req.body;
+            const postDoc = await UserPosts.findById(id);
+            // res.json({'ingo':req.body.id})
+            const isAuthor = JSON.stringify(postDoc._id) === JSON.stringify(req.body.id);
+            if(!isAuthor){
+                return res.status(4000).json("You're not the author of this post!")
+            }
+            await postDoc.updateOne({
+                title,
+                summary,
+                content,
+                cover:newPath ? newPath : postDoc.cover,
+            })
+            res.json(postDoc)
+    })
+})
+
 app.get('/post', async (req, res) => {
     // const posts = await UserPosts.find().populate('author', ['email'])
     res.json(
@@ -126,7 +162,6 @@ app.get('/post/:id', async (req, res) => {
     const postDoc = await UserPosts.findById(id).populate('author', ['username'])
     res.json(postDoc)
 })
-
 
 const port = 4000;
 

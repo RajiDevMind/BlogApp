@@ -2,6 +2,9 @@
     box-sizing: border-box;
     font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
 }
+a{
+    cursor: pointer;
+}
 body {
     color: #222;
 }
@@ -104,6 +107,7 @@ input{
 }
 
 button{
+    cursor: pointer;
     width: 100%;
     background-color: #555;
     font-size: 18px;
