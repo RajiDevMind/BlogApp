@@ -21,7 +21,13 @@ const UserRequirements = require("./models/user");
 const UserPosts = require("./models/post");
 
 // middleware
-app.use(cors({ credentials: true, origin: "http://localhost:5173" }));
+app.use(
+  cors({
+    credentials: true,
+    origin: "http://localhost:5174",
+    methods: ["GET", "POST", "PUT", "DELETE"],
+  })
+);
 // middleware to parse json from the request
 app.use(express.json());
 app.use(cookieParser());
